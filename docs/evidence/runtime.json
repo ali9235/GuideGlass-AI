@@ -1,0 +1,30 @@
+{
+  "captured_at_utc": "2026-10-15T12:47:28.881143+00:00",
+  "method": "Read-only requests to the running local GuideGlass server",
+  "source_commit": "46894f132631fe7eda3bc966c2767cb5e65ff6c1",
+  "bridge": {
+    "http_status": 200,
+    "state": "ready",
+    "device_configured": true
+  },
+  "camera": {
+    "http_status": 200,
+    "image_received": true,
+    "format": "image/jpeg",
+    "received_bytes": 7359
+  },
+  "distance_sensor": {
+    "http_status": 502,
+    "valid_distance_received": false,
+    "physical_sensor_type_verified": false
+  },
+  "scope": "Software operation and camera transport. No claim of an end-to-end ultrasonic hardware test.",
+  "privacy": "No images, LAN addresses, credentials, or personal filesystem paths included.",
+  "recorded_automated_tests": {
+    "tests": 49,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "note": "Existing software test run; not a physical sensor measurement."
+  }
+}
