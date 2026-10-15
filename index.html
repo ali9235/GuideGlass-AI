@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#030915" />
+<title>GuideGlass AI — Spatial Reconstruction</title>
+<link rel="stylesheet" href="/static/spatial.css">
+<script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#030915;--card:#0b162a;--border:#1b304b;--ink:#eff7ff;--muted:#a4b5c8;--blue:#59acff;--safe:#70e1bb;--warn:#ffcb78}
+*{box-sizing:border-box}html{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 52% -20%,#12335b 0%,#030915 62%);color:var(--ink)}main{max-width:640px;margin:0 auto;padding:22px 16px 56px}.header{display:flex;align-items:center;justify-content:space-between;margin:8px 0 22px}.brand{font-weight:800;letter-spacing:.8px;font-size:20px;direction:ltr}.pill{font-size:12px;background:#152b44;color:var(--safe);padding:8px 10px;border-radius:100px;border:1px solid #234e69}.eyebrow{font-size:12px;letter-spacing:1px;color:var(--blue);font-weight:700}h1{font-size:30px;line-height:1.28;letter-spacing:-.7px;margin:9px 0 12px}p{color:var(--muted);font-size:14px;line-height:1.8;margin:0 0 20px}.panel{background:linear-gradient(180deg,#101e34e8,#091326e8);border:1px solid var(--border);border-radius:20px;margin:14px 0;padding:17px}.row{display:flex;align-items:center;justify-content:space-between;gap:14px}.label{font-size:13px;color:var(--muted)}.big{font-size:26px;font-weight:780;letter-spacing:-.5px;margin:7px 0}.status{font-size:13px;color:var(--muted);margin-top:8px;min-height:24px}.camera{height:195px;border-radius:15px;background:radial-gradient(circle at center,#112743,#050c1c 75%);position:relative;display:grid;place-items:center;margin-top:14px;overflow:hidden;border:1px solid #24384d}.camera img{display:none;width:100%;height:100%;object-fit:contain}.camera .placeholder{text-align:center;color:#adc1d9;font-size:13px;line-height:1.8;padding:25px}.camera .placeholder .symbol{font-size:36px;color:#82c3ff;display:block}.dots{height:7px;width:7px;border-radius:100%;background:var(--warn);display:inline-block;margin-left:6px;vertical-align:middle}.dots.on{background:var(--safe)}button{font:inherit;cursor:pointer;border:1px solid #335a82;border-radius:13px;min-height:46px;padding:11px 15px;color:#fff;background:#14263f;font-weight:650}button.primary{width:100%;background:#2478d0;border-color:#4da6fd}button:active{transform:scale(.987)}button:focus-visible,input:focus-visible{outline:3px solid #87bfff;outline-offset:2px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.demo{border-color:#29486c}input{background:#071425;color:#fff;border:1px solid #39536d;padding:13px;border-radius:12px;font:inherit;direction:ltr;width:100%;text-align:left;min-width:0}small{color:var(--muted);display:block;line-height:1.7;margin-top:6px}.signal{display:flex;align-items:center;justify-content:space-between;margin:3px 0 10px}.distance{font-size:34px;font-weight:800;direction:ltr;text-align:right;font-variant-numeric:tabular-nums}.bottom{font-size:12px;color:#a3b2c8;line-height:1.7;margin-top:24px}.log{list-style:none;padding:0;margin:12px 0 0}.log li{border-top:1px solid #203349;padding:10px 0;font-size:13px;color:#b7c6d8}.log li:first-child{border-top:0}.shimmer{color:#a6d4ff}hr{border:none;border-top:1px solid #243850;margin:16px 0}@media(min-width:600px){main{padding-top:42px}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="header"><div class="brand">GUIDEGLASS <span class="shimmer">AI</span></div><span class="pill">SPATIAL 0.2</span></div>
+  <div class="eyebrow">مساعد رؤية تجريبي</div>
+  <h1>محيطك، نقطةً بنقطة.</h1>
+  <p>صور فعلية تُعالَج على Windows وتُعرض هنا ثلاثيًّا. حرّك المشهد بإصبعك. الخريطة تجمع الأجزاء المرصودة فقط، وتتوقف عن الدمج عند فقدان تتبع الكاميرا.</p>
+  <section class="panel spatial-panel" aria-label="إعادة البناء ثلاثي الأبعاد">
+    <div class="row"><div><strong>الخريطة المكانية</strong><div class="status" id="spatialStatus" role="status">جاري الاتصال بالمعالج المحلي…</div></div>
+      <div id="aiFace" class="ai-face" data-state="idle" aria-label="Idle"><div class="face-eyes"><i></i><i></i></div><div class="face-mouth"></div><span id="faceLabel">Idle</span></div>
+    </div>
+    <div id="cloudViewport" class="cloud-viewport"><canvas id="cloudCanvas" aria-label="سحابة نقاط مرصودة قابلة للدوران"></canvas><canvas id="objectOverlay" aria-hidden="true"></canvas><div id="cloudEmpty">ابدأ تسجيلًا أو كاميرا لبناء الخريطة.</div><button id="fitCloud" class="view-tool" aria-label="إظهار الخريطة كاملة">إظهار الكل</button></div>
+    <div class="map-stats"><span><b id="pointCount">0</b> نقطة</span><span><b id="fusedCount">0</b> إطار مدمج</span><span id="trackingState">لا تتبع بعد</span></div>
+    <p id="scaleStatus" class="scale-note">لا توجد بيانات عمق بعد.</p>
+    <div class="scan-controls">
+      <label>مصدر الصور<select id="scanSource"><option value="sample">تسجيل Kinect حقيقي — RGB-D</option><option value="sample_rgb">نفس التسجيل — تقدير العمق بالذكاء الاصطناعي</option><option value="video">فيديو أختاره من جهازي</option><option value="webcam">كاميرا Windows</option><option value="browser">كاميرا الآيفون / المتصفح</option><option value="esp32">كاميرا النظارة المتصلة أدناه</option></select></label>
+      <label id="videoFileLabel" hidden>فيديو MP4 أو MOV (حتى 120 MB)<input id="scanVideo" type="file" accept="video/mp4,video/quicktime,.mov,.mp4"></label>
+      <div class="actions"><button id="startScan" class="primary">بدء مسح جديد</button><button id="stopScan" disabled>إيقاف المسح</button></div>
+      <small id="cameraContext">المعالجة محلية. بدء مسح جديد يستبدل الخريطة غير المحفوظة فقط.</small>
+    </div>
+    <div class="observed-images"><figure><img id="processedFrame" alt="آخر صورة كاميرا تمت معالجتها" hidden><figcaption>الصورة المرصودة</figcaption></figure><figure><img id="processedDepth" alt="تصوير لوني للعمق، وليس صورة كاميرا" hidden><figcaption>العمق — الألوان للعرض فقط</figcaption></figure></div>
+    <video id="localCamera" playsinline muted hidden></video>
+    <div id="objectList" class="objects" aria-live="polite">الكشف عن الأجسام لم يبدأ.</div>
+    <details><summary>دقة التتبع وإعدادات الكاميرا</summary>
+      <p id="trackingDetails">لا توجد قياسات.</p><p id="performanceDetails"></p>
+      <label class="row"><span>كشف COCO للأشخاص والمركبات وأجسام أخرى</span><input id="enableDetection" type="checkbox" checked></label>
+      <label>ملف معاملات كاميرا معايرة JSON (اختياري)<input id="calibrationFile" type="file" accept="application/json,.json"></label>
+      <small>بدونه تُستخدم معاملات عدسة تقديرية للكاميرا العادية. يتطلب الملف صورًا مصححة وعمقًا مسجّلًا عليها؛ المعايرة وحدها لا تحول عمق AI إلى حساس قياس.</small>
+      <label>رقم كاميرا Windows<input id="cameraIndex" type="number" min="0" max="4" value="0"></label>
+      <label>دقة معالجة عمق AI<select id="depthSize"><option value="280">280 — أسرع، تفاصيل أقل</option><option value="392" selected>392 — متوازن</option><option value="518">518 — تفاصيل أفضل، أبطأ</option></select></label>
+      <small>التتبع الحالي Visual Odometry مع استعادة موضع من إطارات مرجعية حديثة. لا يوجد تصحيح عالمي لانجراف SLAM أو Mesh يغلق المناطق غير المرصودة.</small>
+    </details>
+    <div class="map-storage"><label>اسم الخريطة<input id="mapName" maxlength="80" placeholder="مسح المكتب"></label><button id="saveMap">حفظ الخريطة</button>
+      <label>الخرائط المحفوظة<select id="savedMaps"><option value="">لا توجد خرائط</option></select></label>
+      <div class="actions"><button id="openMap">فتح الخريطة</button><a id="downloadPly" class="button-link" hidden>تنزيل PLY</a></div><div id="mapStatus" role="status"></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="row"><strong>🔊 اختبار الصوت العربي</strong><span class="label" id="voiceTag">غير مفعّل</span></div>
+    <p style="margin:10px 0">اضغط لتفعيل النطق من Safari ثم جرّب التنبيهات أدناه.</p>
+    <button class="primary" id="enableVoice">تفعيل الصوت وتجربته</button>
+    <div class="voice-options"><label>اللغة<select id="voiceLanguage"><option value="ar-SA">العربية</option><option value="en-US">English</option></select></label><label>الصوت<select id="voiceChoice"><option value="">صوت الجهاز</option></select></label><label>السرعة<input id="voiceRate" type="range" min="0.6" max="1.4" step="0.05" value="0.9"></label></div>
+    <button id="listenCommand" style="margin-top:10px">أمر صوتي: ابدأ / توقف</button><small id="listeningSupport">التنبيهات المهمة من حساس المسافة تُنطق بالعربية بالأولوية.</small><small>الأوامر الصوتية اختيارية؛ قد يعالج مزود المتصفح الكلام عبر الإنترنت. استخدم الأزرار إذا أردت تجنب ذلك.</small>
+    <div class="actions">
+      <button class="demo" data-speech="تنبيه تجريبي. توجد سيارة أمامك.">🚗 تجربة سيارة</button>
+      <button class="demo" data-speech="تنبيه تجريبي. يوجد رصيف أمامك.">🛣️ تجربة رصيف</button>
+      <button class="demo" data-speech="تنبيه تجريبي. توجد شجرة أمامك.">🌳 تجربة شجرة</button>
+      <button class="demo" data-speech="تنبيه تجريبي. يوجد عائق قريب.">⚠️ تجربة عائق</button>
+    </div>
+    <div class="status" id="voiceStatus" role="status">لا توجد أي بيانات كاميرا أو ذكاء اصطناعي في الاختبارات الأربعة.</div>
+  </section>
+  <section class="panel">
+    <div class="row"><strong>📷 اتصال كاميرا النظارة</strong><span class="label" id="cameraStatus">غير متصل</span></div>
+    <div class="camera"><img id="cameraFrame" alt="صورة الكاميرا الفعلية من النظارة عند الاتصال" /><div class="placeholder" id="cameraPlaceholder"><span class="symbol">◎</span>لا توجد صورة حتى يتم توصيل كاميرا ESP32<br>لن نظهر صورة وهمية.</div></div>
+    <div class="signal"><span class="label">المسافة المقروءة من الحساس</span><div class="distance" id="distance">—</div></div>
+    <div class="row"><span class="label" id="distanceStatus">لا توجد قراءة</span><span class="label">سم</span></div>
+    <hr>
+    <label class="label" for="deviceIP">عنوان IP الخاص بلوحة ESP32 على نفس Wi-Fi</label>
+    <input id="deviceIP" type="text" inputmode="decimal" placeholder="192.168.1.120" autocomplete="off" spellcheck="false" />
+    <small>اترك الحقل فارغًا حتى تكون الكاميرا جاهزة. يتطلب الاتصال أن تكون النظارة وWindows والآيفون على الشبكة المحلية نفسها وأن يكون Firmware قد فعّل /capture و /distance.</small>
+    <button class="primary" id="connect" style="margin-top:14px">اتصال بالنظارة</button>
+    <div class="status" id="connStatus" role="status">بدايةً اختبر الصوت دون أي قطعة إلكترونية.</div>
+  </section>
+  <section class="panel">
+    <strong>🛡️ تنبيهات الحساس الحقيقي</strong>
+    <p style="margin:10px 0">عند الحصول على قراءة صحيحة تقل عن متر واحد، يصدر تنبيه صوتي محدود التكرار. هذه ليست قدرة على تحديد نوع الجسم أو اتجاهه.</p>
+    <label class="row" style="justify-content:flex-start;gap:10px"><input id="realWarnings" type="checkbox" style="width:20px;height:20px" checked />تفعيل تنبيه العائق القريب عند اتصال الحساس</label>
+    <ul class="log" id="log"><li>مستعد للاختبار. لا يوجد اتصال بالأجهزة بعد.</li></ul>
+  </section>
+  <div class="bottom">⚠️ نموذج مختبري فقط، لا يصلح للملاحة أو عبور الشوارع. صفحة الويب قد تتوقف عند قفل الآيفون. لا ترفع صور المحيط للإنترنت. يعمل جسر Windows محليًا في الشبكة المنزلية فقط.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let enabled=false,connected=false,inFlightFrame=false,inFlightDistance=false,lastWarning=0,lastDistance=null,lastSensorTime=0;
+const fresh = ()=>Date.now();
+function log(message){const li=document.createElement('li');li.textContent=new Date().toLocaleTimeString('ar')+' — '+message;$('log').prepend(li);while($('log').children.length>5)$('log').lastElementChild.remove();}
+let speakingPriority=0,utteranceSerial=0;
+function speak(message,priority=false){
+  if(!('speechSynthesis' in window)){ $('voiceStatus').textContent='المتصفح لا يدعم النطق في هذا السياق.';return false; }
+  if(speakingPriority&&!priority)return false;
+  const serial=++utteranceSerial;speakingPriority=priority?1:0;
+  const u=new SpeechSynthesisUtterance(message);u.lang=priority?'ar-SA':$('voiceLanguage').value;u.rate=Number($('voiceRate').value);u.pitch=1;
+  const voices=window.speechSynthesis.getVoices();const chosen=voices.find(v=>v.voiceURI===$('voiceChoice').value&&v.lang.toLowerCase().startsWith(u.lang.split('-')[0]));
+  const voice=chosen||voices.find(v=>v.lang.toLowerCase().startsWith(u.lang.split('-')[0]));if(voice)u.voice=voice;
+  u.onstart=()=>{if(serial===utteranceSerial)window.GuideGlassFace?.setState(priority?'warning':'speaking');};
+  u.onend=()=>{if(serial===utteranceSerial){speakingPriority=0;window.GuideGlassFace?.restore();}};
+  u.onerror=()=>{if(serial===utteranceSerial){speakingPriority=0;$('voiceStatus').textContent='فشل النطق. تحقق من إعدادات الصوت في الآيفون.';window.GuideGlassFace?.restore();}};
+  window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
+  $('voiceStatus').textContent=message;
+  return true;
+}
+window.GuideGlassVoice={speak:(message,priority=false)=>enabled&&speak(message,priority)};
+function refreshVoices(){const selected=$('voiceChoice').value;$('voiceChoice').replaceChildren(new Option('صوت الجهاز',''));if(!window.speechSynthesis)return;for(const voice of speechSynthesis.getVoices().filter(v=>v.lang.startsWith($('voiceLanguage').value.split('-')[0]))){$('voiceChoice').add(new Option(voice.name+' · '+voice.lang,voice.voiceURI));}if([...$('voiceChoice').options].some(v=>v.value===selected))$('voiceChoice').value=selected;}
+if(window.speechSynthesis)speechSynthesis.addEventListener('voiceschanged',refreshVoices);$('voiceLanguage').onchange=refreshVoices;refreshVoices();
+$('enableVoice').onclick=()=>{ enabled=speak($('voiceLanguage').value.startsWith('ar')?'مرحبًا. هذا اختبار صوت نظارة جايد جلاس.':'Hello. This is the GuideGlass voice test.');$('voiceTag').textContent=enabled?'طُلب تشغيل النطق':'غير مدعوم';log('طلب تشغيل اختبار النطق.');};
+document.querySelectorAll('[data-speech]').forEach(btn=>btn.onclick=()=>{enabled=true;speak(btn.dataset.speech);log('تنبيه تم تشغيله يدويًا — محاكاة فقط.');});
+$('connect').onclick=async()=>{
+  const ip=$('deviceIP').value.trim();
+  if(!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)){ $('connStatus').textContent='اكتب عنوان IPv4 صحيحًا من شبكة Wi-Fi، مثل 192.168.1.120';return; }
+  $('connStatus').textContent='جاري حفظ عنوان النظارة على جسر Windows...';
+  try{
+    const r=await fetch('/api/device',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ip})});const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'لم يقبل العنوان');
+    connected=true;lastSensorTime=0;lastDistance=null;
+    $('connStatus').textContent='تم حفظ العنوان. يجري اختبار وصول الكاميرا والحساس...';
+    log('تم إعداد عنوان الجهاز: '+ip); updateFrame();updateDistance();
+  }catch(e){connected=false;$('connStatus').textContent='تعذر الاتصال بجسر Windows: '+e.message;}
+};
+async function updateFrame(){
+  if(!connected||inFlightFrame||document.hidden)return;inFlightFrame=true;
+  try{
+    const res=await fetch('/api/frame?t='+fresh(),{cache:'no-store'});
+    if(!res.ok)throw new Error('camera HTTP '+res.status);
+    const blob=await res.blob();if(!blob.type.startsWith('image/'))throw new Error('Not an image');
+    const url=URL.createObjectURL(blob),im=$('cameraFrame');
+    const previous=im.dataset.url;im.onload=()=>{if(previous)URL.revokeObjectURL(previous);};
+    im.src=url;im.dataset.url=url;im.style.display='block';$('cameraPlaceholder').style.display='none';
+    $('cameraStatus').textContent='صورة من الجهاز';$('connStatus').textContent='كاميرا: متصلة. افحص الحساس أدناه.';
+  }catch(e){$('cameraStatus').textContent='الكاميرا غير متاحة';$('cameraFrame').style.display='none';$('cameraPlaceholder').style.display='block';}
+  finally{inFlightFrame=false;}
+}
+function parseCm(d){
+  if(d&&typeof d==='object'&&(d.valid===false||d.status==='error'||d.status==='invalid'))return null;
+  let num,div=1;
+  if(typeof d==='number'){num=d;div=10;} // bare numeric distance assumed millimetres
+  else if(d&&typeof d==='object'){
+    if(d.distance_mm!==undefined){num=d.distance_mm;div=10;}
+    else if(d.mm!==undefined){num=d.mm;div=10;}
+    else if(d.distance_cm!==undefined){num=d.distance_cm;div=1;}
+    else if(d.cm!==undefined){num=d.cm;div=1;}
+    else return null;
+  }else return null;
+  num=Number(num)/div;
+  return Number.isFinite(num)&&num>0&&num<1000?Math.round(num):null;
+}
+async function updateDistance(){
+  if(!connected||inFlightDistance||document.hidden)return;inFlightDistance=true;
+  try{
+    const r=await fetch('/api/distance?t='+fresh(),{cache:'no-store'});if(!r.ok)throw new Error('Sensor HTTP '+r.status);
+    const d=await r.json(),cm=parseCm(d);if(cm===null)throw new Error('Invalid or missing distance');
+    lastSensorTime=fresh();lastDistance=cm;$('distance').textContent=String(cm);$('distanceStatus').textContent='قراءة حقيقية من الحساس';
+    if(cm<100&&$('realWarnings').checked&&enabled&&fresh()-lastWarning>7000){
+      lastWarning=fresh();const msg='تنبيه. يوجد عائق محتمل أمام الحساس على بعد '+cm+' سنتيمتر.';
+      speak(msg,true);log('عائق قريب: '+cm+' سم (حساس مسافة فقط).');
+    }
+  }catch(e){lastDistance=null;$('distance').textContent='—';$('distanceStatus').textContent='قراءة مفقودة / غير صالحة';}
+  finally{inFlightDistance=false;}
+}
+setInterval(updateFrame,1300);setInterval(updateDistance,650);
+(async()=>{try{const r=await fetch('/api/status');if(!r.ok)throw 1;const d=await r.json();if(d.ip){$('deviceIP').value=d.ip;connected=true;updateFrame();updateDistance();}}catch(e){$('connStatus').textContent='تعذر الاتصال بالخادم. افتح التطبيق من عنوان Windows الظاهر في النافذة السوداء.'}})();
+</script>
+<script type="module">import('/static/spatial.js').catch(error=>{document.getElementById('spatialStatus').textContent='تعذر تحميل العرض ثلاثي الأبعاد. شغّل setup_windows.bat. '+error.message;});</script>
+</body>
+</html>

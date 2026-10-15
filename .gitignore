@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.data/
+models/
+vendor/
+*.log
+*.pem
+*.key
