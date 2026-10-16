@@ -10,6 +10,12 @@ The engineering goal is simple: turn useful environmental information into a cle
 
 *Real application screenshot. A photograph of the assembled glasses is still needed.*
 
+## Camera prototype
+
+![Owner-supplied camera-board prototype with a connected USB cable and cabled antenna](docs/images/camera-prototype.jpg)
+
+*Real hardware photograph supplied by the project owner: a compact camera-equipped board, USB connection, and a cabled Seeed Studio antenna marked "2.4G A-02". The exact board, camera sensor and firmware remain unconfirmed. The glasses mount and ultrasonic sensor are not shown; this photograph is not a live-operation test.*
+
 ## Built around a practical signal path
 
 ```mermaid

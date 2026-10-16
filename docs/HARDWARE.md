@@ -5,12 +5,17 @@ The intended wearable uses glasses, a camera, and an ultrasonic distance sensor.
 | Element | Evidence | Missing confirmation |
 | --- | --- | --- |
 | Glasses / mount | Owner's project description | Assembled photograph and mounting details |
-| Camera device | Actual JPEG received | Board and sensor markings; matching firmware |
+| Camera device | Actual JPEG received; separate owner-supplied camera-board photograph | Exact board/sensor identification and matching firmware; connection between this photographed board and the recorded JPEG source |
+| Cabled antenna | Visible Seeed Studio marking, including "2.4G A-02" | Exact antenna specification, board compatibility and RF operation |
 | Ultrasonic sensor | Intended hardware; software input exists | Model, electrical interface, wiring, valid samples |
 | Windows computer | Recorded running application | No special performance claim is made |
 | iPhone viewer | Browser viewer design | End-to-end physical sensor and audible-output test |
 
 This is an evidence table, not a purchasing BOM. No battery, regulator, amplifier, or sensor module has been guessed.
+
+## Camera component photograph
+
+[View the owner-supplied photograph](images/camera-prototype.jpg). It shows a camera-equipped board with a connected USB cable and a cabled antenna. No processor model, sensor resolution, wireless protocol, range or streaming performance is inferred from its appearance. This is component documentation, not a photograph of assembled glasses or proof that this board produced the previously recorded JPEG.
 
 ## Implemented software interface
 
