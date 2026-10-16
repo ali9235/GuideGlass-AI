@@ -1,0 +1,29 @@
+{
+  "record_date": "2026-10-16",
+  "kind": "software_only",
+  "hardware_test_performed": false,
+  "flashed": false,
+  "paid_requests": 0,
+  "limitations": "No physical safety, accuracy, endurance or operating-video result established by these checks.",
+  "pytest": {
+    "result": "passed",
+    "tests": 49,
+    "duration_seconds": 7.71,
+    "method": "python -m pytest -q -p no:cacheprovider",
+    "fixtures": "deterministic synthetic RGB-D and stubbed models/device inputs"
+  },
+  "frontend_contract": {
+    "result": "passed",
+    "method": "node tests/frontend_contract.mjs",
+    "physical_safari_test": false
+  },
+  "historical_runtime": {
+    "date": "2026-10-15",
+    "bridge_http": 200,
+    "camera_http": 200,
+    "camera_jpeg_bytes": 7359,
+    "distance_http": 502,
+    "distance_root_cause_verified": false,
+    "distance_fixed": false
+  }
+}

@@ -1,5 +1,12 @@
 # GuideGlass AI
 
+## Engineering documentation
+
+[**VOLTRA Engineering Standard**](docs/ENGINEERING_STANDARD.md) · [Architecture & technical deep dive](docs/ARCHITECTURE.md) · [Design decisions](docs/DECISIONS.md) · [Tests & evidence](docs/VALIDATION.md) · [Security & privacy](SECURITY.md) · [Roadmap](docs/ROADMAP.md) · [History](CHANGELOG.md) · [Releases](docs/RELEASING.md)
+
+A shared engineering format, with project-specific evidence. No unperformed hardware test, semantic release or CI success is implied.
+
+
 ### More awareness. Less uncertainty.
 
 A wearable assistive-technology prototype exploring how a **camera, an ultrasonic distance sensor, and spoken feedback** can make nearby surroundings easier to understand for people who are blind or have low vision.

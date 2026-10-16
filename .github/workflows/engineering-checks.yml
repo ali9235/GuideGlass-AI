@@ -1,0 +1,28 @@
+name: Engineering checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  software-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the reviewed source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # verified v4 ref
+        with:
+          persist-credentials: false
+      - name: Validate local documentation and bounded secret patterns
+        run: python3 tools/check_docs.py
+      - name: Install only offline-suite dependencies
+        run: python3 -m pip install numpy==2.2.6 opencv-python-headless==4.12.0.88 Pillow==11.3.0 pytest==8.4.2
+      - name: Run deterministic software tests without models or hardware
+        run: python3 -m pytest -q
+      - name: Check frontend logic (not a Safari test)
+        run: node tests/frontend_contract.mjs

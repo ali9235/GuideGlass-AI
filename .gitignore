@@ -7,3 +7,9 @@ vendor/
 *.log
 *.pem
 *.key
+.env
+.env.*
+!.env.example
+secrets.h
+credentials.h
+*.pyc
